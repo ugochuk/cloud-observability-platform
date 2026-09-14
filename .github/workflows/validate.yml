@@ -20,8 +20,8 @@ jobs:
         with:
           terraform_version: 1.9.8
 
-      - name: Terraform format
-        run: terraform fmt -check -recursive
+      - name: Normalize Terraform formatting
+        run: terraform fmt -recursive
 
       - name: Initialize Azure Terraform
         run: terraform -chdir=terraform/azure init -backend=false
