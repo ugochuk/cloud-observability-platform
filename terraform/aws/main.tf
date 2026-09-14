@@ -24,11 +24,11 @@ resource "aws_prometheus_workspace" "main" {
 }
 
 resource "aws_grafana_workspace" "main" {
-  name                     = "${local.prefix}-grafana"
-  account_access_type      = "CURRENT_ACCOUNT"
-  authentication_providers = ["AWS_SSO"]
-  permission_type          = "SERVICE_MANAGED"
-  data_sources             = ["CLOUDWATCH", "PROMETHEUS", "XRAY"]
+  name                      = "${local.prefix}-grafana"
+  account_access_type       = "CURRENT_ACCOUNT"
+  authentication_providers  = ["AWS_SSO"]
+  permission_type           = "SERVICE_MANAGED"
+  data_sources              = ["CLOUDWATCH", "PROMETHEUS", "XRAY"]
   notification_destinations = ["SNS"]
 }
 
@@ -87,9 +87,9 @@ resource "aws_cloudwatch_metric_alarm" "api_high_latency" {
 resource "aws_cloudwatch_dashboard" "service_overview" {
   dashboard_name = "${local.prefix}-checkout-api"
   dashboard_body = templatefile("${path.module}/../../dashboards/aws-cloudwatch.json.tftpl", {
-    aws_region  = var.aws_region
-    cluster     = var.eks_cluster_name
-    log_group   = aws_cloudwatch_log_group.application.name
+    aws_region = var.aws_region
+    cluster    = var.eks_cluster_name
+    log_group  = aws_cloudwatch_log_group.application.name
   })
 }
 
