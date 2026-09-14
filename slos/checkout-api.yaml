@@ -1,0 +1,27 @@
+service: checkout-api
+window: 30d
+objectives:
+  availability:
+    description: Ratio of non-5xx responses to all HTTP responses.
+    target: 0.999
+    sli:
+      good_events: http_server_requests_total{service="checkout-api",status!~"5.."}
+      total_events: http_server_requests_total{service="checkout-api"}
+  latency:
+    description: Ratio of requests completed in 500 milliseconds or less.
+    target: 0.95
+    sli:
+      good_events: http_server_request_duration_seconds_bucket{service="checkout-api",le="0.5"}
+      total_events: http_server_request_duration_seconds_count{service="checkout-api"}
+error_budget_policy:
+  freeze_nonessential_releases_below_remaining: 0.25
+  require_reliability_review_below_remaining: 0.10
+  alert_windows:
+    fast_burn:
+      short_window: 5m
+      long_window: 1h
+      burn_rate: 14.4
+    slow_burn:
+      short_window: 30m
+      long_window: 6h
+      burn_rate: 6
