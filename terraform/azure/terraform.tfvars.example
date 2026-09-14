@@ -1,0 +1,7 @@
+resource_group_name = "rg-observability-portfolio"
+location            = "westus2"
+environment         = "portfolio"
+aks_cluster_id      = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-aks/providers/Microsoft.ContainerService/managedClusters/aks-platform"
+alert_email         = "platform-team@example.com"
+log_retention_days  = 30
+daily_quota_gb      = 5
