@@ -43,6 +43,7 @@ resource "azurerm_dashboard_grafana" "main" {
   name                              = "${local.prefix}-grafana"
   location                          = azurerm_resource_group.observability.location
   resource_group_name               = azurerm_resource_group.observability.name
+  grafana_major_version             = "11"
   api_key_enabled                   = false
   deterministic_outbound_ip_enabled = true
   public_network_access_enabled     = true
