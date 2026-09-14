@@ -1,0 +1,48 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: checkout-api-reliability
+  namespace: observability
+spec:
+  groups:
+    - name: checkout-api.recording
+      interval: 30s
+      rules:
+        - record: service:http_requests:rate5m
+          expr: sum by (service) (rate(http_server_request_duration_seconds_count[5m]))
+        - record: service:http_errors:ratio5m
+          expr: sum by (service) (rate(http_server_request_duration_seconds_count{http_response_status_code=~"5.."}[5m])) / sum by (service) (rate(http_server_request_duration_seconds_count[5m]))
+        - record: service:http_latency:p95_5m
+          expr: histogram_quantile(0.95, sum by (le, service) (rate(http_server_request_duration_seconds_bucket[5m])))
+
+    - name: checkout-api.alerts
+      rules:
+        - alert: CheckoutApiHighErrorRate
+          expr: service:http_errors:ratio5m{service="checkout-api"} > 0.01
+          for: 10m
+          labels:
+            severity: warning
+            service: checkout-api
+          annotations:
+            summary: Checkout API error rate exceeds 1 percent
+            runbook_url: https://github.com/ugochuk/cloud-observability-platform/blob/main/runbooks/high-error-rate.md
+
+        - alert: CheckoutApiHighLatency
+          expr: service:http_latency:p95_5m{service="checkout-api"} > 0.5
+          for: 10m
+          labels:
+            severity: warning
+            service: checkout-api
+          annotations:
+            summary: Checkout API p95 latency exceeds 500 milliseconds
+            runbook_url: https://github.com/ugochuk/cloud-observability-platform/blob/main/runbooks/high-error-rate.md
+
+        - alert: CheckoutApiFastBurn
+          expr: service:http_errors:ratio5m{service="checkout-api"} > (14.4 * 0.001)
+          for: 5m
+          labels:
+            severity: critical
+            service: checkout-api
+          annotations:
+            summary: Checkout API is rapidly consuming its 30-day error budget
+            runbook_url: https://github.com/ugochuk/cloud-observability-platform/blob/main/runbooks/high-error-rate.md

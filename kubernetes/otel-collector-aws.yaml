@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: adot-collector-config
+  namespace: observability
+data:
+  collector.yaml: |
+    receivers:
+      otlp:
+        protocols:
+          grpc: {}
+          http: {}
+      prometheus:
+        config:
+          scrape_configs:
+            - job_name: checkout-api
+              kubernetes_sd_configs:
+                - role: pod
+              relabel_configs:
+                - source_labels: [__meta_kubernetes_pod_label_app]
+                  action: keep
+                  regex: checkout-api
+
+    processors:
+      memory_limiter:
+        check_interval: 1s
+        limit_mib: 400
+      batch:
+        timeout: 5s
+      resource:
+        attributes:
+          - key: deployment.environment
+            value: portfolio
+            action: upsert
+
+    exporters:
+      awsxray: {}
+      awsemf:
+        namespace: CloudObservabilityPortfolio
+        log_group_name: /platform/portfolio/otel-collector
+      prometheusremotewrite:
+        endpoint: ${env:AMP_REMOTE_WRITE_ENDPOINT}
+        auth:
+          authenticator: sigv4auth
+
+    extensions:
+      sigv4auth:
+        region: ${env:AWS_REGION}
+        service: aps
+
+    service:
+      extensions: [sigv4auth]
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [memory_limiter, resource, batch]
+          exporters: [awsxray]
+        metrics:
+          receivers: [otlp, prometheus]
+          processors: [memory_limiter, resource, batch]
+          exporters: [awsemf, prometheusremotewrite]
