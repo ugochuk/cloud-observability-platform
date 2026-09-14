@@ -1,0 +1,5 @@
+aws_region         = "us-west-2"
+environment        = "portfolio"
+eks_cluster_name   = "eks-platform"
+alert_email        = "platform-team@example.com"
+log_retention_days = 30
