@@ -1,0 +1,38 @@
+{
+  "title": "Checkout API Reliability Overview",
+  "uid": "checkout-api-reliability",
+  "schemaVersion": 39,
+  "refresh": "30s",
+  "time": { "from": "now-6h", "to": "now" },
+  "tags": ["aks", "sre", "opentelemetry", "portfolio"],
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Request Rate",
+      "targets": [{ "expr": "service:http_requests:rate5m{service=\"checkout-api\"}", "legendFormat": "requests/sec" }],
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 }
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "HTTP 5xx Ratio",
+      "targets": [{ "expr": "service:http_errors:ratio5m{service=\"checkout-api\"}", "legendFormat": "error ratio" }],
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 }
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "p95 Request Latency",
+      "targets": [{ "expr": "service:http_latency:p95_5m{service=\"checkout-api\"}", "legendFormat": "p95 seconds" }],
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 }
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Pod CPU Utilization",
+      "targets": [{ "expr": "sum by (pod) (rate(container_cpu_usage_seconds_total{namespace=\"checkout\",container!=\"\"}[5m]))", "legendFormat": "{{pod}}" }],
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 }
+    }
+  ]
+}
